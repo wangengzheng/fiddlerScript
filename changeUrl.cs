@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using Fiddler;
 using System.Text;
 using System.Windows.Forms;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 //using System.Linq;
 
 // INTRODUCTION
@@ -159,6 +160,35 @@ namespace Fiddler
                 oSession.url = oSession.url.Replace(gs_ReplaceToken, gs_ReplaceTokenWith); 
             }
 
+            oSession.oRequest.headers.Add("author",oSession.url);
+			//if (oSession!=null && oSession.url!=null && oSession.url.IndexOf("vote.jxt189.com:9368/webbase",StringComparison.InvariantCultureIgnoreCase)>-1)     // case sensitive
+			//{
+			//	//oSession.url = oSession.url.Replace("vote.jxt189.com:9368/webbase", "localhost:2344/appmanage");    	
+            //    var changeUrl =Regex.Replace(oSession.url,"vote.jxt189.com:9368/webbase","localhost:2344/appmanage", RegexOptions.IgnoreCase);
+            //    oSession.url = changeUrl;
+            //    oSession.oRequest.headers.Add("changeUrl","In");        
+ 			//}
+
+
+	 //using System.Collections.Generic;
+Dictionary<string,string> changeUrlDict = new Dictionary<string,string>();
+	 
+	 //chcangeUrlDict.Add("need rewrite url","changed url");
+changeUrlDict.Add("vote.jxt189.com:9368/webbase","localhost:2344/appmanage");
+	 
+foreach (var temp in changeUrlDict)
+    {
+if(oSession.url.IndexOf(temp.Key,StringComparison.InvariantCultureIgnoreCase)>-1){
+    var oldUrl =oSession.url;
+    var changeUrl =Regex.Replace(oSession.url,temp.Key,temp.Value, RegexOptions.IgnoreCase);
+    oSession.url = changeUrl;
+    oSession.oRequest.headers.Add("changeUrl","old:"+oldUrl+",new:"+changeUrl);
+}					
+}
+
+            
+			
+
             if ((null != gs_OverridenHost) && (oSession.host.ToLower() == gs_OverridenHost))
             {
                 oSession["x-overridehost"] = gs_OverrideHostWith; 
@@ -168,7 +198,8 @@ namespace Fiddler
 			{
 				for(int i=0;i<bpURLArray.Length;i++){
 					if(oSession.uriContains(bpURLArray[i])){
-						oSession["x-breakrequest"]="uri";								
+						oSession["x-breakrequest"]="uri";		
+						break;
 					}
 				}				
 			}	
@@ -404,8 +435,6 @@ namespace Fiddler
 				bpURLArray = sParams[1].Split(',');
                 //FiddlerApplication.UI.SetStatusText("RequestURI breakpoint for "+sParams[1]);				
 				FiddlerApplication.UI.SetStatusText("RequestURI breakpoint for "+sParams[1]);				
-		
-		
                 return true;
             case "bpa":
             case "bpafter":
@@ -499,7 +528,3 @@ namespace Fiddler
         }
     }
 }
-
-
-
-
